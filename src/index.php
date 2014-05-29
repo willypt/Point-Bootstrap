@@ -1,45 +1,29 @@
 <?php
-    session_start();
-    $APP_SETTING = array();
-    $APP_SETTING["header"] = "include/_header";
-    $APP_SETTING["footer"] = "include/_footer";
-    $APP_SETTING["default_view"] = "home";
-    $APP_SETTING["default_404_view"] = "include/404";
+$APP_SETTING = array();
+$APP_SETTING["header"] = "template/_header";
+$APP_SETTING["footer"] = "template/_footer";
+$APP_SETTING["default_view"] = "home";
+$APP_SETTING["default_404_view"] = "include/404";
 
-    $view = (isset($_GET['view'])? $_GET['view'] : $APP_SETTING["default_view"];
+$GLOBALS['app_setting'] = $APP_SETTING;
+/**
+ * Write $APP_SETTING to GLOBAL Variable
+ * TODO: Make APP_SETTING modifiable on runtime.
+ * Is it a good idea?
+ */
 
-    if(!file_exists('./view/'.$view.'.php' ) && !file_exists('./logic/'.$view.'.php')){
-        $view = $APP_SETTING["default_404_view"];
-    }
+$view = (isset($_GET['view'])) ? $_GET['view'] : $GLOBALS['app_setting']["default_view"];
 
-    include_once 'connect.php';
-    include_once 'class/status.php';
-    include_once 'class/db_handler.php';
-    /*
-     * Check Session of Current Database
-     */
-    $DB = new db_handler();
-    if(isset($_SESSION['dblink']) && $_SESSION['dblink']!= ''){
-        //create new link to database
-        $DB = new db_handler($_SESSION['dblink']);
-        if(!$DB->isValid()){
-            $DB = NULL;
-            $_SESSION['dblink'] = NULL;
-            $_SESSION['sessionrunning'] = NULL;
+if (!file_exists('./view/' . $view . '.php') && !file_exists('./logic/' . $view . '.php')) {
+    $view = $GLOBALS['app_setting']["default_404_view"];
+}
 
-        } else {
-            if($DB->sessionrunning != 0){
-                $_SESSION['sessionrunning'] = $DB->sessionrunning;
-            } else if($DB->sessionrunning == 0) {
-                unset($_SESSION['sessionrunning']);
-            }
-        }
-    }
-    if(isset($_GET['logic']) && $view != '404'){
-        include './logic/'.$view.'.php';
-    } else {
-        include './view/'.$APP_SETTING["header"].'.php';
-        include './view/'.$view.'.php';
-        include './view/'.$APP_SETTING["footer"].'.php';
-    }
-    /* www.example.com/?view=home and www.example.com/?logic&view=submitForm */
+session_start();
+
+if (isset($_GET['logic']) && $view != '404') {
+    includeLogic($view);
+} else {
+    includeView($view);
+}
+
+/* www.example.com/?view=home and www.example.com/?logic&view=submitForm */
