@@ -1,28 +1,17 @@
 <?php
+    session_start();
     $APP_SETTING = array();
     $APP_SETTING["header"] = "include/_header";
     $APP_SETTING["footer"] = "include/_footer";
     $APP_SETTING["default_view"] = "home";
-    $APP_SETTING["default_404_view"] = "404";
+    $APP_SETTING["default_404_view"] = "include/404";
 
-    $view = "";
-
-    if(isset($_GET['view'])){
-        $view = $_GET['view'];
-    } else {
-        $view = $APP_SETTING["default_view"];
-    }
+    $view = (isset($_GET['view'])? $_GET['view'] : $APP_SETTING["default_view"];
 
     if(!file_exists('./view/'.$view.'.php' ) && !file_exists('./logic/'.$view.'.php')){
         $view = $APP_SETTING["default_404_view"];
     }
 
-    session_start();
-    if(file_exists("lastdb.txt")){
-        $fh = fopen("lastdb.txt", 'r');
-        $_SESSION['dblink'] = fread($fh, filesize('lastdb.txt'));
-        fclose($fh);
-    }
     include_once 'connect.php';
     include_once 'class/status.php';
     include_once 'class/db_handler.php';
